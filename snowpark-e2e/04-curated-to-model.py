@@ -1,12 +1,10 @@
-import sys
 import logging
-import pandas as pd
+import sys
 
-from snowflake.snowpark import Session, DataFrame, CaseExpr
-from snowflake.snowpark.functions import col, lit, row_number, rank, split, cast, when, expr, min, max
-from snowflake.snowpark.types import StructType, StringType, StructField, StringType, LongType, DecimalType, DateType, \
-    TimestampType
-from snowflake.snowpark import Window
+import pandas as pd
+from snowflake.snowpark import Session
+from snowflake.snowpark.functions import col, lit, split, cast, expr, min, max
+from snowflake.snowpark.types import StringType
 
 # initiate logging at info level
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -47,12 +45,12 @@ def create_region_dim(all_sales_df, session) -> None:
                                        region_dim_df['Country'] == existing_region_dim_df['Country'],
                                        join_type='leftanti')
     region_dim_df.show(5)
-    intsert_cnt = int(region_dim_df.count())
-    if intsert_cnt > 0:
+    insert_cnt = int(region_dim_df.count())
+    if insert_cnt > 0:
         region_dim_df.write.save_as_table("sales_dwh.consumption.region_dim", mode="append")
         print("save operation ran...")
     else:
-        print("No insert ...Opps...")
+        print("No insert ...Oops...")
 
     # have exclude key
 
@@ -64,11 +62,11 @@ def create_product_dim(all_sales_df, session) -> None:
         .with_column("Memory", split(col('MOBILE_KEY'), lit('/'))[3]) \
         .select(col('mobile_key'), col('Brand'), col('Model'), col('Color'), col('Memory'))
 
-    product_dim_df = product_dim_df.select(col('mobile_key'), \
-                                           cast(col('Brand'), StringType()).as_("Brand"), \
-                                           cast(col('Model'), StringType()).as_("Model"), \
-                                           cast(col('Color'), StringType()).as_("Color"), \
-                                           cast(col('Memory'), StringType()).as_("Memory") \
+    product_dim_df = product_dim_df.select(col('mobile_key'),
+                                           cast(col('Brand'), StringType()).as_("Brand"),
+                                           cast(col('Model'), StringType()).as_("Model"),
+                                           cast(col('Color'), StringType()).as_("Color"),
+                                           cast(col('Memory'), StringType()).as_("Memory")
                                            )
 
     product_dim_df = product_dim_df.groupBy(col('mobile_key'), col("Brand"), col("Model"), col("Color"),
@@ -89,12 +87,12 @@ def create_product_dim(all_sales_df, session) -> None:
                                                "mobile_key", "Brand", "Model", "Color", "Memory", "isActive")
 
     product_dim_df.show(5)
-    intsert_cnt = int(product_dim_df.count())
-    if intsert_cnt > 0:
+    insert_cnt = int(product_dim_df.count())
+    if insert_cnt > 0:
         product_dim_df.write.save_as_table("sales_dwh.consumption.product_dim", mode="append")
         print("save operation ran...")
     else:
-        print("No insert ...Opps...")
+        print("No insert ...Oops...")
 
 
 def create_promocode_dim(all_sales_df, session) -> None:
@@ -116,19 +114,19 @@ def create_promocode_dim(all_sales_df, session) -> None:
         "sales_dwh.consumption.promo_code_dim_seq.nextval as promo_code_id_pk", "promotion_code", "country", "region",
         "isActive")
 
-    intsert_cnt = int(promo_code_dim_df.count())
-    if intsert_cnt > 0:
+    insert_cnt = int(promo_code_dim_df.count())
+    if insert_cnt > 0:
         promo_code_dim_df.write.save_as_table("sales_dwh.consumption.promo_code_dim", mode="append")
         print("save operation ran...")
     else:
-        print("No insert ...Opps...")
+        print("No insert ...Oops...")
 
 
 def create_customer_dim(all_sales_df, session) -> None:
-    customer_dim_df = all_sales_df.groupBy(col("COUNTRY"), col("REGION"), col("CUSTOMER_NAME"), col("CONCTACT_NO"),
+    customer_dim_df = all_sales_df.groupBy(col("COUNTRY"), col("REGION"), col("CUSTOMER_NAME"), col("CONTACT_NO"),
                                            col("SHIPPING_ADDRESS")).count()
     customer_dim_df = customer_dim_df.with_column("isActive", lit('Y'))
-    customer_dim_df = customer_dim_df.selectExpr("customer_name", "conctact_no", "shipping_address", "country",
+    customer_dim_df = customer_dim_df.selectExpr("customer_name", "CONTACT_NO", "shipping_address", "country",
                                                  "region", "isactive")
     # region_dim_df.write.save_as_table('sales_dwh.consumption.region_dim',mode="append")
 
@@ -136,24 +134,24 @@ def create_customer_dim(all_sales_df, session) -> None:
     # part 2 where delta data will be processed
 
     existing_customer_dim_df = session.sql(
-        "select customer_name,conctact_no,shipping_address,country, region from sales_dwh.consumption.customer_dim")
+        "select customer_name,CONTACT_NO,shipping_address,country, region from sales_dwh.consumption.customer_dim")
 
     customer_dim_df = customer_dim_df.join(existing_customer_dim_df,
-                                           ["customer_name", "conctact_no", "shipping_address", "country", "region"],
+                                           ["customer_name", "CONTACT_NO", "shipping_address", "country", "region"],
                                            join_type='leftanti')
 
     customer_dim_df = customer_dim_df.selectExpr("sales_dwh.consumption.customer_dim_seq.nextval as customer_id_pk",
-                                                 "customer_name", "conctact_no", "shipping_address", "country",
+                                                 "customer_name", "CONTACT_NO", "shipping_address", "country",
                                                  "region", "isActive")
 
     customer_dim_df.show(5)
 
-    intsert_cnt = int(customer_dim_df.count())
-    if intsert_cnt > 0:
+    insert_cnt = int(customer_dim_df.count())
+    if insert_cnt > 0:
         customer_dim_df.write.save_as_table("sales_dwh.consumption.customer_dim", mode="append")
         print("save operation ran...")
     else:
-        print("No insert ...Opps...")
+        print("No insert ...Oops...")
 
 
 def create_payment_dim(all_sales_df, session) -> None:
@@ -176,12 +174,12 @@ def create_payment_dim(all_sales_df, session) -> None:
     payment_dim_df = payment_dim_df.selectExpr("sales_dwh.consumption.payment_dim_seq.nextval as payment_id_pk",
                                                "payment_method", "payment_provider", "country", "region", "isActive")
 
-    intsert_cnt = int(payment_dim_df.count())
-    if intsert_cnt > 0:
+    insert_cnt = int(payment_dim_df.count())
+    if insert_cnt > 0:
         payment_dim_df.write.save_as_table("sales_dwh.consumption.payment_dim", mode="append")
         print("save operation ran...")
     else:
-        print("No insert ...Opps...")
+        print("No insert ...Oops...")
 
 
 def create_date_dim(all_sales_df, session) -> None:
@@ -232,12 +230,12 @@ def create_date_dim(all_sales_df, session) -> None:
         Weekday as order_weekday\
     ')
 
-    intsert_cnt = int(date_dim_df.count())
-    if intsert_cnt > 0:
+    insert_cnt = int(date_dim_df.count())
+    if insert_cnt > 0:
         date_dim_df.write.save_as_table("sales_dwh.consumption.date_dim", mode="append")
         print("save operation ran...")
     else:
-        print("No insert ...Opps...")
+        print("No insert ...Oops...")
 
 
 def main():
@@ -254,7 +252,7 @@ def main():
 
     create_region_dim(all_sales_df, session)  # region dimension
     create_product_dim(all_sales_df, session)  # product dimension
-    create_promocode_dim(all_sales_df, session)  # promot code dimension
+    create_promocode_dim(all_sales_df, session)  # promo code dimension
     create_customer_dim(all_sales_df, session)  # customer dimension
     create_payment_dim(all_sales_df, session)  # payment dimension
     create_date_dim(all_sales_df, session)  # date dimension
@@ -299,3 +297,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    

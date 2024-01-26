@@ -76,14 +76,14 @@ def main():
         col('PROMOTION_CODE').alias('PROMOTION_CODE'),
         col('FINAL_ORDER_AMOUNT').alias('LOCAL_TOTAL_ORDER_AMT'),
         col('TAX_AMOUNT').alias('local_tax_amt'),
-        col('USD2INR').alias("Exhchange_Rate"),
+        col('USD2INR').alias("Exchange_Rate"),
         (col('FINAL_ORDER_AMOUNT') / col('USD2USD')).alias('US_TOTAL_ORDER_AMT'),
         (col('TAX_AMOUNT') / col('USD2USD')).alias('USD_TAX_AMT'),
         col('payment_status'),
         col('shipping_status'),
         col('payment_method'),
         col('payment_provider'),
-        col('phone').alias('conctact_no'),
+        col('phone').alias('contact_no'),
         col('shipping_address')
     )
 

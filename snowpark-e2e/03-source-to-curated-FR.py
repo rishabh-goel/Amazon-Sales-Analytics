@@ -1,9 +1,9 @@
-import sys
 import logging
+import sys
 
 from snowflake.snowpark import Session, DataFrame
-from snowflake.snowpark.functions import col, lit, row_number, rank
 from snowflake.snowpark import Window
+from snowflake.snowpark.functions import col, lit, rank
 
 # initiate logging at info level
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -83,7 +83,7 @@ def main():
         col('shipping_status'),
         col('payment_method'),
         col('payment_provider'),
-        col('phone').alias('conctact_no'),
+        col('phone').alias('contact_no'),
         col('shipping_address')
     )
 

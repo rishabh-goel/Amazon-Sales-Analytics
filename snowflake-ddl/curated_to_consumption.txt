@@ -40,7 +40,7 @@ create or replace sequence customer_dim_seq start = 1 increment = 1;
 create or replace transient table customer_dim(
     customer_id_pk number primary key,
     customer_name text,
-    CONCTACT_NO text,
+    CONTACT_NO text,
     SHIPPING_ADDRESS text,
     country text,
     region text,

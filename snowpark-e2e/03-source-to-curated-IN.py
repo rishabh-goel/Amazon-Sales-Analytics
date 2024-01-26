@@ -1,9 +1,9 @@
-import sys
 import logging
+import sys
 
 from snowflake.snowpark import Session, DataFrame
-from snowflake.snowpark.functions import col, lit, row_number, rank
 from snowflake.snowpark import Window
+from snowflake.snowpark.functions import col, lit, rank
 
 # initiate logging at info level
 logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s',
@@ -76,14 +76,14 @@ def main():
         col('PROMOTION_CODE').alias('PROMOTION_CODE'),
         col('FINAL_ORDER_AMOUNT').alias('LOCAL_TOTAL_ORDER_AMT'),
         col('TAX_AMOUNT').alias('local_tax_amt'),
-        col('USD2INR').alias("Exhchange_Rate"),
+        col('USD2INR').alias("Exchange_Rate"),
         (col('FINAL_ORDER_AMOUNT') / col('USD2INR')).alias('US_TOTAL_ORDER_AMT'),
         (col('TAX_AMOUNT') / col('USD2INR')).alias('USD_TAX_AMT'),
         col('payment_status'),
         col('shipping_status'),
         col('payment_method'),
         col('payment_provider'),
-        col('mobile').alias('conctact_no'),
+        col('mobile').alias('contact_no'),
         col('shipping_address')
     )
 
@@ -93,3 +93,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    

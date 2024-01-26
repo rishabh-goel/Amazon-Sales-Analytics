@@ -39,7 +39,7 @@ def ingest_in_sales(connection) -> None:
         t.$3::text as mobile_key,
         t.$4::number as order_quantity, 
         t.$5::number as unit_price, 
-        t.$6::number as order_valaue,  
+        t.$6::number as order_value,  
         t.$7::text as promotion_code , 
         t.$8::number(10,2)  as final_order_amount,
         t.$9::number(10,2) as tax_amount,
@@ -51,7 +51,7 @@ def ingest_in_sales(connection) -> None:
         t.$15::text as mobile,
         t.$16::text as shipping_address,
         metadata$filename as stg_file_name,
-        metadata$file_row_number as stg_row_numer,
+        metadata$file_row_number as stg_row_number,
         metadata$file_last_modified as stg_last_modified
         from 
         @sales_dwh.source.my_internal_stg/source=IN/format=csv/ 
@@ -73,7 +73,7 @@ def ingest_us_sales(connection) -> None:
     copy into sales_dwh.source.us_sales_order from (                                       
         select                              
         sales_dwh.source.US_SALES_ORDER_SEQ.NEXTVAL, 
-        $1:"Order ID"::text as orde_id,   
+        $1:"Order ID"::text as order_id,   
         $1:"Customer Name"::text as customer_name,
         $1:"Mobile Model"::text as mobile_key,
         to_number($1:"Quantity") as quantity,
@@ -90,7 +90,7 @@ def ingest_us_sales(connection) -> None:
         $1:"Phone"::text as phone,
         $1:"Delivery Address"::text as shipping_address,
         metadata$filename as stg_file_name,
-        metadata$file_row_number as stg_row_numer,
+        metadata$file_row_number as stg_row_number,
         metadata$file_last_modified as stg_last_modified
         from                                
             @sales_dwh.source.my_internal_stg/source=US/format=parquet/
@@ -113,7 +113,7 @@ def ingest_fr_sales(connection) -> None:
         copy into sales_dwh.source.fr_sales_order from (                                                       
             select                                              
             sales_dwh.source.FR_SALES_ORDER_SEQ.NEXTVAL,         
-            $1:"Order ID"::text as orde_id,                   
+            $1:"Order ID"::text as order_id,                   
             $1:"Customer Name"::text as customer_name,          
             $1:"Mobile Model"::text as mobile_key,              
             to_number($1:"Quantity") as quantity,               
@@ -130,7 +130,7 @@ def ingest_fr_sales(connection) -> None:
             $1:"Phone"::text as phone,                          
             $1:"Delivery Address"::text as shipping_address ,    
             metadata$filename as stg_file_name,
-            metadata$file_row_number as stg_row_numer,
+            metadata$file_row_number as stg_row_number,
             metadata$file_last_modified as stg_last_modified
             from                                                
             @sales_dwh.source.my_internal_stg/source=FR/format=json/
