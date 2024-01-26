@@ -1,0 +1,7 @@
+-- creating an internal stage within the source schema.
+use schema source;
+create or replace stage my_internal_stg;
+
+desc stage my_internal_stg;
+
+list @my_internal_stg;
